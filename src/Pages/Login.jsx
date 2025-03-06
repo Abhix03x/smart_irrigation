@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axios";
+import { toast, Bounce, Slide } from "react-toastify";
 
 function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -20,7 +21,17 @@ function Login() {
     
     try {
       if (!formData.username || !formData.password) {
-        setError("Please fill in all fields");
+        toast.error('Please fill in all fields', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
         return;
       }
 
@@ -35,7 +46,17 @@ function Login() {
       }
     } catch (err) {
       console.error("Login error:", err); // Debug log
-      setError(err.response?.data?.message || "Login failed - please try again");
+      toast.error('Login failed Invalid username or password', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+      });
     }
   };
 

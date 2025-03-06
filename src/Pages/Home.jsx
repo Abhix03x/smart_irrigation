@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChartBarIcon, PlusCircleIcon, CogIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { WaterDropIcon, ThermometerIcon, LeafIcon } from "./CustomIcons";
+import { toast, Slide } from "react-toastify";
 
 const Home = () => {
   const [sensorData, setSensorData] = useState({
@@ -60,7 +61,17 @@ const Home = () => {
         };
 
         socket.onerror = (error) => {
-            console.error("WebSocket Error:", error);
+          toast.error('Websocket error', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Slide,
+          });
         };
 
         socket.onclose = (event) => {
@@ -167,15 +178,15 @@ const Home = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-teal-400">{key}</h3>
-                {key === "Temperature" ? (
+                {/* {key === "Temperature" ? (
                   <ThermometerIcon className="w-8 h-8 text-red-400" />
                 ) : key === "Humidity" ? (
                   <WaterDropIcon className="w-8 h-8 text-blue-400" />
                 ) : (
                   <LeafIcon className="w-8 h-8 text-green-400" />
-                )}
+                )} */}
               </div>
-              <div className="text-4xl font-bold text-gray-300">{value}</div>
+              <div className="text-4xl font-bold text-gray-300">{value}{key === "Temperature" ? "°C" : key === "Humidity" ? "%" : "%"}</div>
             </motion.div>
           ))}
         </motion.div>

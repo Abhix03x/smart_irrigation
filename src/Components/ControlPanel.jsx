@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../api/axios';
 import { FiThermometer, FiDroplet, FiCloud, FiClock, FiEdit3 } from 'react-icons/fi';
-import { toast, Bounce } from 'react-toastify';
+import { toast, Bounce, Slide } from 'react-toastify';
 
 const ControlPanel = () => {
     const [selectedCrop, setSelectedCrop] = useState(null);
@@ -213,7 +213,7 @@ const ControlPanel = () => {
                 position: "bottom-right",
                 autoClose: 1500,
                 theme: "dark",
-                transition: Bounce,
+                transition: Slide,
             });
         } catch (error) {
             toast.error('Error setting time: ' + (error.response?.data || error.message), {

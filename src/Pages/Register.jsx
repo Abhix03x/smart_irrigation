@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axios";
+import { toast, Slide } from "react-toastify";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -16,7 +17,17 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      toast.error('Passwords do not match', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+      });
       return;
     }
 
@@ -27,10 +38,30 @@ function Register() {
             username: formData.username,
             password: formData.password
         });
-        alert(response.data);
+        toast.success('User Registration Successfull', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Slide,
+        });
       navigate('/login');
       } catch (error) {
-        setError("Registration failed. Try again.",error);
+        toast.error('Registration Failed try again', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Slide,
+        });
     }
   };
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axiosInstance from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { FiEdit3, FiSave, FiLogOut, FiUser, FiKey } from 'react-icons/fi';
+import { toast, Bounce, Slide } from 'react-toastify';
 
 
 const Profile = () => {
@@ -15,7 +16,17 @@ const Profile = () => {
 
     useEffect(() => {
         if (!username) {
-            alert("User not found");
+            toast.error('User not Found', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
             navigate('/login');
             return;
         }
@@ -35,7 +46,17 @@ const Profile = () => {
                                 error.message || 
                                 "An unknown error occurred";
                 
-                alert(`Failed to fetch user data: ${errorMessage}`);
+                toast.error('Failed to fetch user Data', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce,
+                });
                 navigate('/login');
             } finally {
                 setIsLoading(false);
@@ -64,14 +85,34 @@ const Profile = () => {
     const handleSaveChanges = async () => {
         // Form validation
         if (!formData.username.trim() || !formData.email.trim()) {
-            alert('Username and email are required');
+            toast.warn('Username and Email are required', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
             return;
         }
     
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
-            alert('Please enter a valid email address');
+            toast.warn('Please Enter a Valid Email Address', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
             return;
         }
     
@@ -84,22 +125,72 @@ const Profile = () => {
             setUserData(response.data);
             setFormData(response.data);
             localStorage.setItem("username", response.data.username);
-            alert('Profile updated successfully');
+            toast.success('Profile Updated Successfully', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Slide,
+            });
             setEditing(false);
         } catch (error) {
             const errorMessage = error.response?.data?.message || 
                                error.response?.data || 
                                error.message || 
                                "An unknown error occurred";
-            alert(`Error updating profile: ${errorMessage}`);
+                toast.error('Error Updating Profile}', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
         }
     };
     
     const handleLogout = () => {
-        if (window.confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('username');
-            navigate('/login');
-        }
+        toast.warn(
+            <div>
+                <p>Are you sure you want to logout?</p>
+                <button
+                    onClick={() => confirmLogout()}
+                    className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                >
+                    Yes
+                </button>
+                <button
+                    onClick={() => toast.dismiss()}
+                    className="bg-gray-500 text-white px-4 py-2 rounded"
+                >
+                    No
+                </button>
+            </div>,
+            {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Slide,
+            }
+        );
+    };
+    
+    const confirmLogout = () => {
+        localStorage.removeItem('username');
+        navigate('/login');
+        toast.dismiss(); // Close the toast
     };
 
     return (

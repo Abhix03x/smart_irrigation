@@ -13,7 +13,17 @@ const ForgotPassword = () => {
             const response = await axiosInstance.post('/auth/forgot-password', { email });
             setMessage(response.data);
         } catch (error) {
-            setMessage("Error sending reset token. Try again.");
+            toast.success('Error sending reset token', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Slide,
+            });
         }
     };
 

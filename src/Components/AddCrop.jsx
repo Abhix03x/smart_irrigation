@@ -60,7 +60,17 @@ const SelectCrop = () => {
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching crops:", err);
-                setError('Failed to fetch crops data');
+                toast.error('Failed to fetch crop data', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Slide,
+                });
                 setLoading(false);
             }
         };

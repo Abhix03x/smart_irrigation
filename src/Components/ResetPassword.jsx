@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axiosInstance from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { FiLock, FiMail, FiKey } from 'react-icons/fi';
+import { toast, Slide, Bounce } from 'react-toastify';
 
 const ResetPassword = () => {
     const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
@@ -24,7 +25,17 @@ const ResetPassword = () => {
             setMessage(response.data);
             setStep(2);
         } catch (error) {
-            setMessage(error.response?.data || "Error requesting OTP");
+            toast.error('Error requesting OTP', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
         }
     };
 
@@ -35,7 +46,17 @@ const ResetPassword = () => {
             setMessage(response.data);
             setStep(3);
         } catch (error) {
-            setMessage(error.response?.data || "Invalid OTP");
+            toast.error('Invaid OTP', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
         }
     };
 
@@ -47,10 +68,30 @@ const ResetPassword = () => {
                 otp: formData.otp,
                 newPassword: formData.newPassword
             });
-            alert(response.data);
+            toast.success('Password Updated Successfully', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Slide,
+            });
             navigate('/login');
         } catch (error) {
-            setMessage(error.response?.data || "Error resetting password");
+            toast.success('Error resetting password', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
         }
     };
 
