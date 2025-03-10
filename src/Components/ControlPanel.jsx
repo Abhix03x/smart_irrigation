@@ -62,7 +62,7 @@ const ControlPanel = () => {
         let intervalId;
     
         const openSocket = () => {
-          socket = new WebSocket("ws://192.168.1.44:8080/ws/sensor-data");
+          socket = new WebSocket("ws://192.168.1.49:8080/ws/sensor-data");
     
           socket.onopen = () => {
             console.log("WebSocket connected!");
@@ -126,12 +126,29 @@ const ControlPanel = () => {
     }, []);
 
     /** ✅ Handle Manual Valve Control */
+    // const toggleManualControl = async () => {
+    //     try {
+    //         await axiosInstance.post(`/irrigation/manual-control?openValve=${!manualControl}`);
+    //         setManualControl(!manualControl);
+    //     } catch (error) {
+    //         toast.error("Error controlling valve: " + error.message, {
+    //             position: "bottom-right",
+    //             theme: "dark",
+    //             transition: Bounce,
+    //         });
+    //     }
+    // };
     const toggleManualControl = async () => {
         try {
-            await axiosInstance.post(`/irrigation/manual-control?openValve=${!manualControl}`);
+            const response = await axiosInstance.post(`/irrigation/manual-control`, null, {
+                params: { openValve: !manualControl },
+            });
+    
+            console.log("Response:", response.data);  // Debugging
             setManualControl(!manualControl);
         } catch (error) {
-            toast.error("Error controlling valve: " + error.message, {
+            console.error("Error:", error.response || error);
+            toast.error("Error controlling valve: " + (error.response?.data || error.message), {
                 position: "bottom-right",
                 theme: "dark",
                 transition: Bounce,
