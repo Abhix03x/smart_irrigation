@@ -163,7 +163,7 @@ const SelectCrop = () => {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-gray-200 p-6">
-            <FiList className="text-6xl mb-4 text-green-400" />
+            {/* <FiList className="text-6xl mb-4 text-green-400" /> */}
             <h2 className="text-3xl font-semibold mb-6">Select Crop</h2>
 
             <div className="w-full max-w-4xl bg-gray-800 p-6 rounded-2xl shadow-lg">

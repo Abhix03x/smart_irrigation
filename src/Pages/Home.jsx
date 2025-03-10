@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChartBarIcon, PlusCircleIcon, CogIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { WaterDropIcon, ThermometerIcon, LeafIcon } from "./CustomIcons";
 import { toast, Slide } from "react-toastify";
 
 const Home = () => {
+  const [selectedCrop, setSelectedCrop] = useState(null);
+  const [showThresholds, setShowThresholds] = useState(false);
   const [sensorData, setSensorData] = useState({
     Temperature: "N/A",
     Humidity: "N/A",
@@ -138,6 +140,42 @@ const Home = () => {
     },
   };
 
+  useEffect(() => {
+    const savedCropJSON = localStorage.getItem("selectedCrop");
+    if (savedCropJSON) {
+      const savedCrop = JSON.parse(savedCropJSON);
+      setSelectedCrop(savedCrop);
+    } else {
+      toast.warn("No crop selected. Please select a crop first.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "dark",
+        transition: Slide,
+      });
+    }
+  }, []);
+
+  const fetchCropDetails = async (cropId) => {
+    try {
+        const response = await axiosInstance.get(`crops/${cropId}`);
+        const cropData = response.data;
+        setSelectedCrop(cropData);
+        
+        // Set time values from received data
+        setStartTime(cropData.irrigationStartTime || '');
+        setEndTime(cropData.irrigationEndTime || '');
+    } catch (error) {
+        console.error('Error fetching crop details:', error);
+        toast.error('Failed to fetch crop details.', {
+            position: "bottom-right",
+            theme: "dark",
+            transition: Bounce,
+        });
+    } finally {
+        setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-200 p-6 font-sans">
       <motion.div
@@ -192,65 +230,69 @@ const Home = () => {
         </motion.div>
   
         {/* User Crops */}
-        {userCrops.length === 0 ? (
-          <motion.button
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/addCrop")}
-            className="bg-teal-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-teal-500 transition-all duration-300 flex items-center space-x-2 mx-auto"
-          >
-            <PlusCircleIcon className="w-5 h-5" />
-            <span>Add Crop</span>
-          </motion.button>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {userCrops.map((crop) => (
-              <motion.div
-                key={crop.id}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => navigate(`/crop-details/${crop.id}`)}
-                className="bg-gray-800 shadow-lg rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300"
-              >
-                <h3 className="text-xl font-semibold text-teal-400">{crop.name}</h3>
-                <img
-                  src={crop.image}
-                  alt={crop.name}
-                  className="w-full h-40 object-cover rounded-xl mt-4"
-                />
-              </motion.div>
-            ))}
+        {selectedCrop && (
+          <div className="bg-gray-700 p-5 rounded-lg mb-5">
+            <h3
+              className="text-xl font-semibold text-green-300 cursor-pointer"
+              onClick={() => setShowThresholds(!showThresholds)}
+            >
+              Selected Crop: <span className="text-white">{selectedCrop.name}</span>
+            </h3>
+            <AnimatePresence>
+              {showThresholds && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4"
+                >
+                  {[
+                    { label: "Temperature (°C)", min: selectedCrop.minTemperature, max: selectedCrop.maxTemperature },
+                    { label: "Humidity (%)", min: selectedCrop.minHumidity, max: selectedCrop.maxHumidity },
+                    { label: "Soil Moisture (%)", min: selectedCrop.minSoilMoisture, max: selectedCrop.maxSoilMoisture },
+                  ].map(({ label, min, max }) => (
+                    <div key={label} className="bg-gray-800 p-3 rounded-lg">
+                      <p className="text-gray-400 text-sm">{label}</p>
+                      <p className="text-gray-100">Min: <span className="font-semibold">{min}</span></p>
+                      <p className="text-gray-100">Max: <span className="font-semibold">{max}</span></p>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
-  
+        
+
+
         {/* Buttons */}
-        <motion.div
-          variants={containerVariants}
-          className="flex flex-wrap gap-4 justify-center"
-        >
-          <motion.button
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        {/* Buttons Section */}
+        <div className="flex flex-wrap justify-center gap-6 mt-6">
+          <button
             onClick={() => navigate("/multi-sensor-graph")}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-indigo-500 transition-all duration-300 flex items-center space-x-2 mt-5"
+            className="flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-indigo-500 transition-all"
           >
             <ChartBarIcon className="w-5 h-5" />
             <span>View Sensor Graph</span>
-          </motion.button>
-        </motion.div>
-  
-        <motion.button
-          variants={itemVariants}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          </button>
+          <button
+            onClick={() => navigate("/addCrop")}
+            className="flex items-center space-x-2 bg-teal-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-teal-500 transition-all"
+          >
+            <PlusCircleIcon className="w-5 h-5" />
+            <span>{selectedCrop ? "Change Crop" : "Add Crop"}</span>
+          </button>
+        </div>
+
+        {/* Control Panel Button */}
+        <button
           onClick={() => navigate("/control-panel")}
-          className="bg-gray-700 text-teal-400 px-6 py-3 rounded-full shadow-md hover:bg-gray-600 transition-all duration-300 flex items-center space-x-2 fixed bottom-8 right-8"
+          className="flex items-center space-x-2 bg-gray-700 text-teal-400 px-6 py-3 rounded-full shadow-md hover:bg-gray-600 transition-all fixed bottom-8 right-8"
         >
           <CogIcon className="w-5 h-5" />
           <span>Control Panel</span>
-        </motion.button>
+        </button>
       </motion.div>
     </div>
   );

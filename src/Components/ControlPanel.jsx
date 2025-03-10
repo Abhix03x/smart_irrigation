@@ -177,7 +177,7 @@ const ControlPanel = () => {
             const response = await axiosInstance.post(`/irrigation/analyze/${selectedCrop.id}`, payload);
 
             // Display success message
-            setIrrigationStatus(response.data.message || 'Analysis completed.');
+            setIrrigationStatus(response.data);
         } catch (error) {
             toast.error('Error in irrigation analysis: ' + error.message, {
                 position: "bottom-right",
@@ -271,31 +271,6 @@ const ControlPanel = () => {
                 {/* ✅ Display Selected Crop Information */}
                 {selectedCrop ? (
                     <div className="bg-gray-700 p-5 rounded-lg">
-                        <h3 className="text-xl font-semibold text-green-300 mb-3">
-                            Selected Crop: <span className="text-white">{selectedCrop.name}</span>
-                        </h3>
-                        
-                        <h4 className="text-lg font-semibold text-gray-100 mb-3">Crop Thresholds:</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <p className="text-gray-400 text-sm">Temperature (°C)</p>
-                                <p className="text-gray-100">Min: <span className="font-semibold">{selectedCrop.minTemperature}°C</span></p>
-                                <p className="text-gray-100">Max: <span className="font-semibold">{selectedCrop.maxTemperature}°C</span></p>
-                            </div>
-                            
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <p className="text-gray-400 text-sm">Humidity (%)</p>
-                                <p className="text-gray-100">Min: <span className="font-semibold">{selectedCrop.minHumidity}%</span></p>
-                                <p className="text-gray-100">Max: <span className="font-semibold">{selectedCrop.maxHumidity}%</span></p>
-                            </div>
-                            
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <p className="text-gray-400 text-sm">Soil Moisture (%)</p>
-                                <p className="text-gray-100">Min: <span className="font-semibold">{selectedCrop.minSoilMoisture}%</span></p>
-                                <p className="text-gray-100">Max: <span className="font-semibold">{selectedCrop.maxSoilMoisture}%</span></p>
-                            </div>
-                        </div>
-
                         {/* ✅ Irrigation Time Display/Edit Section */}
                         <div className="mt-4 bg-gray-800 p-3 rounded-lg">
                             <div className="flex justify-between items-center">
