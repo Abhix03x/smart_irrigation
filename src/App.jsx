@@ -16,6 +16,7 @@ import MultiSensorGraph from "./Components/MultiSensorGraph";
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
 import { ToastContainer, Bounce } from 'react-toastify';
+import Navbar from "./Components/Navbar";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,8 +36,9 @@ function App() {
     setIsAuthenticated(false);
   };
   return (
-    <MantineProvider>
     
+    <MantineProvider>
+      <Navbar />
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />

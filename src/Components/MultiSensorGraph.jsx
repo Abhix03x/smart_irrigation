@@ -95,12 +95,12 @@ const MultiSensorGraph = () => {
   return (
     <div className="p-6 bg-gray-900 min-h-screen text-gray-200">
       <div className="flex justify-between items-center mb-6">
-        <button
+        {/* <button
           onClick={() => navigate("/home")}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-all"
         >
           Back to Home
-        </button>
+        </button> */}
         <div className="flex items-center gap-4">
           <label htmlFor="time-range" className="font-medium text-gray-300">
             Time Range:

@@ -1,12 +1,9 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8080/api",
+    baseURL: "https://demo-spring-1.onrender.com:443/api",
     headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-        // Add CORS headers
-        "Access-Control-Allow-Origin": "*"
+        "Content-Type": "application/json"
     }
 });
 

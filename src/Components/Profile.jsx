@@ -27,7 +27,7 @@ const Profile = () => {
                 theme: "dark",
                 transition: Bounce,
             });
-            navigate('/login');
+            // navigate('/login');
             return;
         }
 
@@ -57,7 +57,7 @@ const Profile = () => {
                     theme: "dark",
                     transition: Bounce,
                 });
-                navigate('/login');
+                // navigate('/login');
             } finally {
                 setIsLoading(false);
             }

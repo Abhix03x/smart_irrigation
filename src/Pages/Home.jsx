@@ -6,14 +6,12 @@ import { WaterDropIcon, ThermometerIcon, LeafIcon } from "./CustomIcons";
 import { toast, Slide } from "react-toastify";
 
 const Home = () => {
-  const [selectedCrop, setSelectedCrop] = useState(null);
-  const [showThresholds, setShowThresholds] = useState(false);
+  const [selectedCrop, setSelectedCrop] = useState([]);
   const [sensorData, setSensorData] = useState({
     Temperature: "N/A",
     Humidity: "N/A",
     SoilMoisture: "N/A",
   });
-  const [userCrops, setUserCrops] = useState([]); // For crops
   const navigate = useNavigate();
 
   // Fetch user crops directly using useEffect
@@ -41,7 +39,7 @@ const Home = () => {
     let intervalId;
 
     const openSocket = () => {
-        socket = new WebSocket("ws://192.168.1.44:8080/ws/sensor-data");
+        socket = new WebSocket("wss://demo-spring-1.onrender.com:443/ws/sensor-data");
 
         socket.onopen = () => {
             console.log("WebSocket connected!");
@@ -62,20 +60,8 @@ const Home = () => {
             }
         };
 
-        socket.onerror = (error) => {
-          toast.error('Websocket error', {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Slide,
-          });
-        };
-
+        console.error("Websocket not Connected");
+        
         socket.onclose = (event) => {
             console.log("WebSocket closed:", event);
         };
@@ -89,7 +75,7 @@ const Home = () => {
     };
 
     const requestData = () => {
-        if (socket.readyState === WebSocket.OPEN) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send("Request data"); // Send a request for new data
             console.log("Requesting sensor data...");
         }
@@ -98,12 +84,12 @@ const Home = () => {
     // Start opening and closing the socket every 5 seconds
     const manageSocket = () => {
         openSocket();
-        requestData(); // Send request for data immediately upon connection
+        setTimeout(requestData, 1000); // Request data after connection has time to establish
 
         intervalId = setInterval(() => {
             closeSocket(); // Close the existing connection before opening a new one
             openSocket();  // Open a new connection
-            requestData(); // Send a new request for data
+            setTimeout(requestData, 1000); // Request data after connection has time to establish
         }, 5000); // 5000ms = 5 seconds
     };
 
@@ -115,8 +101,7 @@ const Home = () => {
         clearInterval(intervalId); // Clear interval
         closeSocket(); // Close socket when component unmounts
     };
-}, []);
-
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -141,43 +126,17 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const savedCropJSON = localStorage.getItem("selectedCrop");
-    if (savedCropJSON) {
-      const savedCrop = JSON.parse(savedCropJSON);
-      setSelectedCrop(savedCrop);
-    } else {
-      toast.warn("No crop selected. Please select a crop first.", {
-        position: "bottom-right",
-        autoClose: 3000,
-        theme: "dark",
-        transition: Slide,
-      });
+    // Load selected crops from localStorage
+    const savedCropsJSON = localStorage.getItem('selectedCrops');
+    if (savedCropsJSON) {
+        const savedCrops = JSON.parse(savedCropsJSON);
+        setSelectedCrop(savedCrops);
     }
   }, []);
 
-  const fetchCropDetails = async (cropId) => {
-    try {
-        const response = await axiosInstance.get(`crops/${cropId}`);
-        const cropData = response.data;
-        setSelectedCrop(cropData);
-        
-        // Set time values from received data
-        setStartTime(cropData.irrigationStartTime || '');
-        setEndTime(cropData.irrigationEndTime || '');
-    } catch (error) {
-        console.error('Error fetching crop details:', error);
-        toast.error('Failed to fetch crop details.', {
-            position: "bottom-right",
-            theme: "dark",
-            transition: Bounce,
-        });
-    } finally {
-        setLoading(false);
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-200 p-6 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-200 pt-20 pb-6 px-6 font-sans">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -190,7 +149,7 @@ const Home = () => {
           className="flex justify-between items-center mb-10"
         >
           <h1 className="text-4xl font-bold text-teal-400">Smart Irrigation Dashboard</h1>
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/profile")}
@@ -198,7 +157,7 @@ const Home = () => {
           >
             <UserCircleIcon className="w-5 h-5" />
             <span>Profile</span>
-          </motion.button>
+          </motion.button> */}
         </motion.div>
   
         {/* Sensor Data */}
@@ -211,64 +170,49 @@ const Home = () => {
               key={key}
               variants={itemVariants}
               whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="bg-gray-800 shadow-lg rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300"
               onClick={() => navigate(`/graph/${key}`)}
+              className="relative group bg-gray-800 shadow-lg rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-teal-400">{key}</h3>
-                {/* {key === "Temperature" ? (
-                  <ThermometerIcon className="w-8 h-8 text-red-400" />
-                ) : key === "Humidity" ? (
-                  <WaterDropIcon className="w-8 h-8 text-blue-400" />
-                ) : (
-                  <LeafIcon className="w-8 h-8 text-green-400" />
-                )} */}
+                {/* Icon placeholders */}
               </div>
               <div className="text-4xl font-bold text-gray-300">{value}{key === "Temperature" ? "°C" : key === "Humidity" ? "%" : "%"}</div>
+              <div className="relative">
+                {/* <button className="text-blue-600 text-right hover:text-blue-200"
+                onClick={() => navigate(`/graph/${key}`)}
+                >
+                    Graph
+                </button> */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-gray-800 text-teal-400 text-sm py-2 px-4 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                 Click to View Graph Page
+                </div>
+              </div>
             </motion.div>
           ))}
         </motion.div>
   
         {/* User Crops */}
-        {selectedCrop && (
+        {selectedCrop.length > 0 && (
           <div className="bg-gray-700 p-5 rounded-lg mb-5">
-            <h3
-              className="text-xl font-semibold text-green-300 cursor-pointer"
-              onClick={() => setShowThresholds(!showThresholds)}
-            >
-              Selected Crop: <span className="text-white">{selectedCrop.name}</span>
-            </h3>
-            <AnimatePresence>
-              {showThresholds && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4"
-                >
-                  {[
-                    { label: "Temperature (°C)", min: selectedCrop.minTemperature, max: selectedCrop.maxTemperature },
-                    { label: "Humidity (%)", min: selectedCrop.minHumidity, max: selectedCrop.maxHumidity },
-                    { label: "Soil Moisture (%)", min: selectedCrop.minSoilMoisture, max: selectedCrop.maxSoilMoisture },
-                  ].map(({ label, min, max }) => (
-                    <div key={label} className="bg-gray-800 p-3 rounded-lg">
-                      <p className="text-gray-400 text-sm">{label}</p>
-                      <p className="text-gray-100">Min: <span className="font-semibold">{min}</span></p>
-                      <p className="text-gray-100">Max: <span className="font-semibold">{max}</span></p>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <h3 className="text-xl font-semibold text-green-300">Selected Crops</h3>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {selectedCrop.map((crop) => (
+                <div key={crop.id} className="bg-gray-800 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-green-300">{crop.name}</h4>
+                  <div className="mt-2">
+                      <p className="text-gray-400 font-bold">Temperature: {crop.minTemperature}°C - {crop.maxTemperature}°C</p>
+                      <p className="text-gray-400 font-bold">Humidity: {crop.minHumidity}% - {crop.maxHumidity}%</p>
+                      <p className="text-gray-400 font-bold">Soil Moisture: {crop.minSoilMoisture}% - {crop.maxSoilMoisture}%</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         
-
-
         {/* Buttons */}
-        {/* Buttons Section */}
-        <div className="flex flex-wrap justify-center gap-6 mt-6">
+        {/* <div className="flex flex-wrap justify-center gap-6 mt-6">
           <button
             onClick={() => navigate("/multi-sensor-graph")}
             className="flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-indigo-500 transition-all"
@@ -283,20 +227,19 @@ const Home = () => {
             <PlusCircleIcon className="w-5 h-5" />
             <span>{selectedCrop ? "Change Crop" : "Add Crop"}</span>
           </button>
-        </div>
+        </div> */}
 
         {/* Control Panel Button */}
-        <button
+        {/* <button
           onClick={() => navigate("/control-panel")}
           className="flex items-center space-x-2 bg-gray-700 text-teal-400 px-6 py-3 rounded-full shadow-md hover:bg-gray-600 transition-all fixed bottom-8 right-8"
         >
           <CogIcon className="w-5 h-5" />
           <span>Control Panel</span>
-        </button>
+        </button> */}
       </motion.div>
     </div>
   );
-  
 };
 
 export default Home;
